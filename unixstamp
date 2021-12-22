@@ -15,13 +15,22 @@ days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"]
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 def timestamp_to_date(timestamp, with_secs=True):
-    t = time.localtime(int(timestamp))
+    ts = int(timestamp)
+    t = time.localtime(ts)
+    ut = time.gmtime(ts)
 
-    hour, am_pm = (t.tm_hour, "AM") if t.tm_hour < 13 else (t.tm_hour - 12, "PM")
-    minute = t.tm_min if t.tm_min >= 10 else f"0{t.tm_min}"
-    sec = t.tm_sec if t.tm_sec >= 10 else f"0{t.tm_sec}"
+    def convert_time(t):
+        hour, am_pm = (t.tm_hour, "AM") if t.tm_hour < 13 else (t.tm_hour - 12, "PM")
+        minute = t.tm_min if t.tm_min >= 10 else f"0{t.tm_min}"
+        sec = t.tm_sec if t.tm_sec >= 10 else f"0{t.tm_sec}"
+        return (hour, am_pm, minute, sec)
+    
+    ut_time = convert_time(ut)
+    l_time = convert_time(t)
 
-    datestring = f"UNIX Timestamp: {timestamp}\nDate and time: {days[t.tm_wday]} {months[t.tm_mon-1]} {t.tm_mday}, {t.tm_year} at {hour}:{minute}{f':{sec}' if with_secs else ''} {am_pm}"
+    datestring = f"UNIX Timestamp: {timestamp}\n\
+Date and time (local): {days[t.tm_wday]} {months[t.tm_mon-1]} {t.tm_mday}, {t.tm_year} at {l_time[0]}:{l_time[2]}{f':{l_time[3]}' if with_secs else ''} {l_time[1]}\n\
+Date and time (UTC): {days[ut.tm_wday]} {months[ut.tm_mon-1]} {ut.tm_mday}, {ut.tm_year} at {ut_time[0]}:{ut_time[2]}{f':{ut_time[3]}' if with_secs else ''} {ut_time[1]}"
     return datestring
 
 def date_to_timestamp(date_string: str):
@@ -46,7 +55,7 @@ def date_to_timestamp(date_string: str):
 parser = ArgumentParser(prog="UNIXstamp",
                         description="A utility for converting and getting UNIX timestamps",
                         epilog="(C) 2021 kevinshome. This software is released under the terms of the MIT License.")
-parser.add_argument("-v", "--version", action="version", version="%(prog)s version 0.1, released under the terms of the MIT License.")
+parser.add_argument("-v", "--version", action="version", version="%(prog)s version 0.2, released under the terms of the MIT License.")
 parser.add_argument("-ns", "--no-secs",
                     help="Return datetime value without seconds.",
                     action="store_true")

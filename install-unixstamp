@@ -25,7 +25,7 @@ os.chdir(storage_location)
 # download UNIXstamp script from github
 with open(prog_name, 'w') as f:
     j = http.client.HTTPSConnection("raw.githubusercontent.com", 443) # open connection
-    j.request('GET', 'https://raw.githubusercontent.com/kevinshome/unixstamp/main/unix') # make request
+    j.request('GET', 'https://raw.githubusercontent.com/kevinshome/unixstamp/main/unixstamp') # make request
     res = j.getresponse() # store response
     lines = res.readlines() # store text
     j.close() # close connection
