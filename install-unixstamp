@@ -12,10 +12,18 @@ if platform.system() == 'Windows':
     # windows support SOONR!
     raise SystemExit("Sorry, but this script only works on Linux, MacOS, and other UNIX-like systems right now, but should support Windows soon!")
 
-# change into local bin directory and download unix script
-os.chdir('/usr/local/bin')
+# Interactive prompt
+print("\033[1;37mWelcome to the interactive installer for UNIXstamp!")
+prog_name = input(" \033[1;96mWhat would you like to the executable to be titled? (Default: 'unix'): \033[0m")
+storage_location = input(" \033[1;96mWhere would you like the executable stored? (Default: '/usr/local/bin'): \033[0m")
+if prog_name == '': prog_name = "unix"
+if storage_location == '': storage_location = "/usr/local/bin"
 
-with open("unix", 'w') as f:
+# move into the exe's storage directory
+os.chdir(storage_location)
+
+# download UNIXstamp script from github
+with open(prog_name, 'w') as f:
     j = http.client.HTTPSConnection("raw.githubusercontent.com", 443) # open connection
     j.request('GET', 'https://raw.githubusercontent.com/kevinshome/unixstamp/main/unix') # make request
     res = j.getresponse() # store response
@@ -24,5 +32,5 @@ with open("unix", 'w') as f:
     for line in lines:
         f.write(line.decode('utf-8'))
 
-os.chmod("unix", 0o555) # set UNIXscript permissions, equal to 'chmod 555' or R_X/R_X/R_X
-print("UNIXstamp has been installed successfully!\nTo test it out, run: 'unix'.")
+os.chmod(prog_name, 0o555) # set UNIXscript permissions, equal to 'chmod 555' or R_X/R_X/R_X
+print(f"UNIXstamp has been installed successfully!\nTo test it out, run: '{prog_name}'.")
