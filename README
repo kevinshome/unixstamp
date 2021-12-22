@@ -6,7 +6,7 @@ Installation:
 =========
 
 To install UNIXstamp, run the following command:
-    > curl -fsSL https://raw.githubusercontent.com/kevinshome/unixstamp/main/install-unixstamp | sudo python3
+    > wget https://raw.githubusercontent.com/kevinshome/unixstamp/main/install-unixstamp ;sudo python3 install-unixstamp
 
 Usage:
 =========
