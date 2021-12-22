@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import os
+from stat import S_IEXEC
+import http.client
+import platform
+
+if os.getuid():
+    # fail if not root
+    raise SystemExit("This script requires root to run. If you don't feel safe with that (as you should), feel free to first inspect the script at 'https://github.com/kevinshome/unixstamp', or manually install UNIXstamp yourself.")
+
+if platform.system() == 'Windows':
+    # windows support SOONR!
+    raise SystemExit("Sorry, but this script only works on Linux, MacOS, and other UNIX-like systems right now, but should support Windows soon!")
+
+# change into local bin directory and download unix script
+os.chdir('/usr/local/bin')
+
+with open("unix", 'w') as f:
+    j = http.client.HTTPSConnection("raw.githubusercontent.com", 443) # open connection
+    j.request('GET', 'https://raw.githubusercontent.com/kevinshome/unixstamp/main/unix') # make request
+    res = j.getresponse() # store response
+    lines = res.readlines() # store text
+    j.close() # close connection
+    for line in lines:
+        f.write(line.decode('utf-8'))
+
+os.chmod("unix", S_IEXEC) # make UNIXstamp script executable
+print("UNIXstamp has been installed successfully!\nTo test it out, run: 'unix'.")

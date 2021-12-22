@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+'''
+UNIXstamp
+A utility for converting and getting UNIX timestamps.
+
+Released under the terms of the MIT License. A copy of this license can be found in this directory under the title 'LICENSE'.
+If this file does not exist, you can find a copy of the license at: 'https://opensource.org/licenses/MIT'.
+'''
+from sys import version
+import time
+import datetime
+from argparse import ArgumentParser
+
+days = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"]
+months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+def timestamp_to_date(timestamp, with_secs=True):
+    t = time.localtime(int(timestamp))
+
+    hour, am_pm = (t.tm_hour, "AM") if t.tm_hour < 13 else (t.tm_hour - 12, "PM")
+    minute = t.tm_min if t.tm_min >= 10 else f"0{t.tm_min}"
+    sec = t.tm_sec if t.tm_sec >= 10 else f"0{t.tm_sec}"
+
+    datestring = f"UNIX Timestamp: {timestamp}\nDate and time: {days[t.tm_wday]} {months[t.tm_mon-1]} {t.tm_mday}, {t.tm_year} at {hour}:{minute}{f':{sec}' if with_secs else ''} {am_pm}"
+    return datestring
+
+def date_to_timestamp(date_string: str):
+    date, _time = date_string.split()
+    date = date.split('/')
+    date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+    _time = _time.split(':')
+
+    date_time = time.mktime((
+        date.year, # tm_year
+        date.month, # tm_mon
+        date.day, # tm_mday
+        int(_time[0]), # tm_hour
+        int(_time[1]), # tm_min
+        int(_time[2]), # tm_sec
+        date.weekday(), # tm_wday
+        0, # tm_yday, is 0 because value doesn't matter
+        -1 # tm_isdst, DST indicator, -1 because value is unknown as per 'https://docs.python.org/3/library/time.html#time.struct_time'
+    ))
+    return int(date_time)
+
+parser = ArgumentParser(prog="UNIXstamp",
+                        description="A utility for converting and getting UNIX timestamps",
+                        epilog="(C) 2021 kevinshome. This software is released under the terms of the MIT License.")
+parser.add_argument("-v", "--version", action="version", version="%(prog)s version 0.1, released under the terms of the MIT License.")
+parser.add_argument("-ns", "--no-secs",
+                    help="Return datetime value without seconds.",
+                    action="store_true")
+parser.add_argument("--date",
+                    help="Date object for datetime conversions (YYYY/MM/DD)",
+                    nargs=1,
+                    default=None)
+parser.add_argument("--time",
+                    help="Time object for datetime conversions, in 24-hour format (HH:MM:SS)",
+                    nargs=1,
+                    default=None)
+parser.add_argument("timestamp",
+                    help="A UNIX timestamp to convert to a datetime value.",
+                    nargs='?',
+                    default=None)
+args = parser.parse_args()
+
+if args.date and not args.time:
+    # if only date is provided, assume midnight
+    stamp = date_to_timestamp(f"{args.date[0]} 00:00:00")
+    print(timestamp_to_date(stamp)) if not args.no_secs else print(timestamp_to_date(stamp, with_secs=False))
+elif args.date and args.time:
+    # if date and time provided, convert both to timestamp
+    stamp = date_to_timestamp(f"{args.date[0]} {args.time[0]}")
+    print(timestamp_to_date(stamp)) if not args.no_secs else print(timestamp_to_date(stamp, with_secs=False))
+elif args.timestamp:
+    # if timestamp given, convert to date
+    print(timestamp_to_date(args.timestamp)) if not args.no_secs else print(timestamp_to_date(args.timestamp, with_secs=False))
+else:
+    # if no args given, return current timestamp
+    print(timestamp_to_date(int(time.time()))) if not args.no_secs else print(timestamp_to_date(int(time.time()), with_secs=False))
